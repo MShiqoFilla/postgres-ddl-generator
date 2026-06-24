@@ -129,6 +129,7 @@ if `--dry-run` flag is not called, by default SQL files are saved to `./result/<
 - `CREATE SCHEMA IF NOT EXISTS` statements
 - `CREATE TABLE` statements with columns, types, defaults, and constraints
 - Properly ordered to handle foreign key dependencies
+
 Otherwise it will print the query string result to terminal without file creation.
 
 ## Dependencies
