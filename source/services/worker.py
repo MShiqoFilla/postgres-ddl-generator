@@ -96,7 +96,7 @@ def create_single_table_ddl(table_metadata:TableMetadata, ignore_foreign_key:boo
     if constraint_defs:
         create_table_query = (
             create_table_query + ","
-            + "\n\n"
+            + "\n"
             + ",\n".join(constraint_defs)
         )
 
