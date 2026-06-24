@@ -47,6 +47,12 @@ class PGConnector:
         for table_meta in tables_record:
             tables.append(TableMetadata.model_validate(table_meta))
 
+        exists_tables = set([t["table_name"] for t in tables_record])
+        non_exist_tables = set(table_names).difference(exists_tables)
+
+        if non_exist_tables:
+            logger.warning(f"These tables don't exist :: {non_exist_tables} in schema {schema_name}")
+
         return tables
 
 def create_schema_query(schema_name):
