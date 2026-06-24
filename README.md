@@ -71,7 +71,7 @@ python source/main.py -H <host> -p <port> -U <username> -P <password> -d <databa
 | `--all-tables` | | Process all tables in the schema | No* |
 | `--ignore-fk` | | Skip foreign key constraints in output | No |
 
-*Either `--tables` or `--all-tables` must be specified.*
+*Either `--tables` or `--all-tables` must be specified.
 
 ### Examples
 
