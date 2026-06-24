@@ -66,10 +66,11 @@ python source/main.py -H <host> -p <port> -U <username> -P <password> -d <databa
 | `--username` | `-U` | Database username | Yes |
 | `--password` | `-P` | Database password | Yes |
 | `--dbname` | `-d` | Database name | Yes |
-| `--schema` | `-s` | Schema name (e.g., `public`) | Yes |
+| `--schema` | `-s` | Schema name, default to `public` if not specified | No |
 | `--tables` | | Specific table names (space-separated) | No* |
 | `--all-tables` | | Process all tables in the schema | No* |
 | `--ignore-fk` | | Skip foreign key constraints in output | No |
+| `--dry-run` | | Print DDL query to terminal | No |
 
 *Either `--tables` or `--all-tables` must be specified.
 

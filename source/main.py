@@ -10,10 +10,11 @@ parser.add_argument("-p", "--port", type=int, help="Postres Connection Port")
 parser.add_argument("-U", "--username", type=str, help="Username Authentication for Postgres DB")
 parser.add_argument("-P", "--password", type=str, help="Password Authentication for Postgres DB")
 parser.add_argument("-d", "--dbname", type=str, help="Postgres Database Name")
-parser.add_argument("-s", "--schema", type=str, help="Postgres Schema Name", required=False)
+parser.add_argument("-s", "--schema", type=str, default="public", help="Postgres Schema Name", required=False)
+parser.add_argument("--tables", nargs="*", type=str, help="Postgres Table Names", required=False)
 parser.add_argument("--all-tables", action="store_true", help="Process for All Tables in the Schema", required=False)
 parser.add_argument("--ignore-fk", action="store_true", help="Ignore Foreign Key Constraints", required=False)
-parser.add_argument("--tables", nargs="*", type=str, help="Postgres Table Names", required=False)
+parser.add_argument("--dry-run", action="store_true", help="Print DDL Query Result without Creating File", required=False)
 
 args = parser.parse_args()
 
@@ -36,7 +37,10 @@ if __name__ == "__main__":
             )
         
         query = create_ddl_strings(tables, args.ignore_fk)
-        write_sql_query_into_sql_file(query)
+        if args.dry_run:
+            print("\n"+query+"\n")
+        else:
+            write_sql_query_into_sql_file(query)
 
 
 
