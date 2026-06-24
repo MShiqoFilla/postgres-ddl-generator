@@ -11,7 +11,6 @@ The tool handles:
 - `NOT NULL` constraints and default values
 - `IDENTITY` columns (auto-increment)
 - Primary keys, unique constraints, and foreign keys
-- Schema creation with `CREATE SCHEMA IF NOT EXISTS`
 - Proper table ordering to respect foreign key dependencies
 
 ## Why This Tool vs pg_dump
@@ -89,6 +88,38 @@ python source/main.py -H localhost -p 5432 -U admin -P secret -d mydb -s public 
 **Generate DDL without foreign keys:**
 ```bash
 python source/main.py -H localhost -p 5432 -U admin -P secret -d mydb -s public --tables users --ignore-fk
+```
+
+## Example Output
+
+Given a table like this:
+```sql
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+Running:
+```bash
+python source/main.py -H localhost -p 5432 -U admin -P secret -d mydb -s public --tables users
+```
+
+Generates `result/<hash>.sql`:
+```sql
+CREATE SCHEMA IF NOT EXISTS public;
+
+CREATE TABLE public.users (
+    id integer NOT NULL DEFAULT nextval('public.users_id_seq'::regclass),
+    username varchar(50) NOT NULL,
+    email varchar(100) NOT NULL,
+    created_at timestamp without time zone DEFAULT now(),
+
+    CONSTRAINT users_pkey PRIMARY KEY (id),
+    CONSTRAINT users_email_key UNIQUE (email)
+);
 ```
 
 ## Output
