@@ -19,6 +19,7 @@ class PGConnector:
                 user=pg_username, password=pg_password, dbname=db_name, host=pg_host, port=pg_port
             )
         )
+        self.pg_client.test_connection()
 
     def get_list_of_tables_by_schema(self, schema_name):
         schemas_df = self.pg_client.execute_sql_select(LIST_TABLES_OF_SCHEMA_QUERIES, params={"schema_name" : schema_name})
