@@ -51,6 +51,30 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv sync
 ```
 
+## Configuration
+
+Database credentials can be provided in two ways:
+
+**Option 1: Command-line arguments**
+```bash
+python source/main.py -H localhost -p 5432 -U admin -P secret -d mydb --all-tables
+```
+
+**Option 2: Environment file (.env)**
+Create a `.env` file with your database credentials:
+```bash
+PG_HOST=localhost
+PG_PORT=5432
+PG_USER=admin
+PG_PASS=secret
+PG_DBNM=mydb
+```
+
+Then reference it with `--db-config`:
+```bash
+python source/main.py -c .env -s public --all-tables
+```
+
 ## Usage
 
 ```bash
@@ -61,34 +85,42 @@ python source/main.py -H <host> -p <port> -U <username> -P <password> -d <databa
 
 | Argument | Short | Description | Required |
 |----------|-------|-------------|----------|
-| `--host` | `-H` | PostgreSQL host or IP address | Yes |
-| `--port` | `-p` | PostgreSQL port number | Yes |
-| `--username` | `-U` | Database username | Yes |
-| `--password` | `-P` | Database password | Yes |
-| `--dbname` | `-d` | Database name | Yes |
-| `--schema` | `-s` | Schema name, default to `public` if not specified | No |
+| `--db-config` | `-c` | Path to `.env` file with DB credentials | † |
+| `--host` | `-H` | PostgreSQL host or IP address | † |
+| `--port` | `-p` | PostgreSQL port number | † |
+| `--username` | `-U` | Database username | † |
+| `--password` | `-P` | Database password | † |
+| `--dbname` | `-d` | Database name | † |
+| `--schema` | `-s` | Schema name, defaults to `public` | No |
 | `--tables` | | Specific table names (space-separated) | No* |
 | `--all-tables` | | Process all tables in the schema | No* |
 | `--ignore-fk` | | Skip foreign key constraints in output | No |
-| `--dry-run` | | Print DDL query to terminal | No |
+| `--dry-run` | | Print DDL to terminal without creating file | No |
+
+† Use `--db-config` OR provide individual connection arguments (`-H -p -U -P -d`).
 
 *Either `--tables` or `--all-tables` must be specified.
 
 ### Examples
 
-**Generate DDL for specific tables:**
+**Using .env file (recommended):**
 ```bash
-python source/main.py -H localhost -p 5432 -U admin -P secret -d mydb -s public --tables users orders products
+python source/main.py -c .env -s public --all-tables
 ```
 
-**Generate DDL for all tables in a schema:**
+**Using command-line arguments:**
 ```bash
-python source/main.py -H localhost -p 5432 -U admin -P secret -d mydb -s public --all-tables
+python source/main.py -H localhost -p 5432 -U admin -P secret -d mydb -s public --tables users orders
+```
+
+**Preview DDL without creating file (dry-run):**
+```bash
+python source/main.py -c .env -s public --tables users --dry-run
 ```
 
 **Generate DDL without foreign keys:**
 ```bash
-python source/main.py -H localhost -p 5432 -U admin -P secret -d mydb -s public --tables users --ignore-fk
+python source/main.py -c .env -s public --tables users --ignore-fk
 ```
 
 ## Example Output
@@ -135,4 +167,4 @@ Otherwise it will print the query string result to terminal without file creatio
 ## Dependencies
 
 - Python 3.11+
-- pandas, psycopg2-binary, pydantic, sqlalchemy, loguru
+- pandas, psycopg2-binary, pydantic, python-dotenv, sqlalchemy, loguru
