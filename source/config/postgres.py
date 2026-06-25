@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, URL, text, Engine
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.exc import SQLAlchemyError
 from loguru import logger
 import pandas as pd
 import os
@@ -28,3 +28,11 @@ class PostgreService:
         with self.engine.connect() as connect:
             connect.execute(text(query))
             connect.commit()
+
+    def test_connection(self):
+        try:
+            with self.engine.connect() as connect:
+                connect.execute(text("SELECT 1"))
+            return True
+        except SQLAlchemyError as e:
+            raise
