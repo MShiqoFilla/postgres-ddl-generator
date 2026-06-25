@@ -5,6 +5,7 @@ from config.logger import logger
 from typing import List
 import hashlib
 import os
+import re
 
 def generate_id(string:str):
     return hashlib.md5(string.encode()).hexdigest()
@@ -58,12 +59,17 @@ class PGConnector:
 def create_schema_query(schema_name):
     return f"CREATE SCHEMA IF NOT EXISTS {schema_name}"
 
+def extract_sequence_name(default_expr: str) -> str | None:
+    match = re.search(r"'([^']+)'::regclass", default_expr)
+    return match.group(1) if match else None
+
 def create_single_table_ddl(table_metadata:TableMetadata, ignore_foreign_key:bool=False):
     table_name = table_metadata.table_name
     schema_name = table_metadata.schema_name
     columns = table_metadata.columns
     constraints = table_metadata.constraints
 
+    sequence_queries = []
     column_defs = []
     for col in columns:
         col_name = col.name
@@ -85,13 +91,25 @@ def create_single_table_ddl(table_metadata:TableMetadata, ignore_foreign_key:boo
         if col.is_nullable == "NO":
             col_def += " NOT NULL"
         if col_default:=col.column_default:
+            if "nextval" in col_default:
+                sequence_queries.append(f"CREATE SEQUENCE {extract_sequence_name(col_default)};")
             col_def += f' DEFAULT {col_default}'
         column_defs.append(col_def)
 
-    create_table_query = (
-        f"CREATE TABLE {schema_name}.{table_name} (\n"
-        + ",\n".join(column_defs)
-    )
+    create_sequences_query = ""
+    if sequence_queries:
+        create_sequences_query = ";\n".join(sequence_queries)
+        create_table_query = (
+            create_sequences_query + "\n"
+            f"CREATE TABLE {schema_name}.{table_name} (\n"
+            + ",\n".join(column_defs)
+        )
+    else:
+        create_table_query = (
+            f"CREATE TABLE {schema_name}.{table_name} (\n"
+            + ",\n".join(column_defs)
+        )
+
     constraint_defs = []
     for cons in constraints:
         if ignore_foreign_key:
