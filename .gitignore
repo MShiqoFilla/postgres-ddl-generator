@@ -5,8 +5,8 @@ build/
 dist/
 wheels/
 *.egg-info
-*.sql
 result/
+result*
 
 # Virtual environments
 .venv
